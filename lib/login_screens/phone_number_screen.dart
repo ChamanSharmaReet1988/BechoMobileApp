@@ -1,5 +1,14 @@
+import 'dart:convert';
+import 'dart:math';
+
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import '../Utility/constant.dart';
+import '../Utility/preference_helper.dart';
+import '../common/base_widget.dart';
+import '../http/api_constant.dart';
+import '../http/api_service.dart';
+import '../http/handle_request.dart';
 import 'otp_screen.dart';
 
 class PhoneNumberScreen extends StatefulWidget {
@@ -16,11 +25,15 @@ class _PhoneNumberScreenState extends State<PhoneNumberScreen> {
   final _controller = TextEditingController();
   bool _isButtonEnabled = false;
   String selectedCountryCode = '+91';
+  final PreferencesHelper _preferencesHelper = PreferencesHelper();
+  String verificationId = "";
+
 
   @override
   void dispose() {
     _controller.dispose();
     super.dispose();
+    // login(context);
   }
 
   void _onInputChanged(String value) {
@@ -44,13 +57,127 @@ class _PhoneNumberScreenState extends State<PhoneNumberScreen> {
     }
 
     // Navigate to OTP screen and pass the verification details
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => OtpScreen(contactInfo: widget.isEmailLogin ? _controller.text.trim() : selectedCountryCode + _controller.text.trim()), // Pass the phone number or email here
-      ),
-    );
+    if (_formKey!.currentState!.validate()) {
+      // login(context);
+    }
   }
+
+  void login() async {
+    try {
+      debugPrint("Attempting phone verification for: ${selectedCountryCode + _controller.text.trim()}");
+
+      await FirebaseAuth.instance.verifyPhoneNumber(
+        phoneNumber: selectedCountryCode + _controller.text.trim(),
+        verificationCompleted: (PhoneAuthCredential credential) async {
+          debugPrint("Verification completed automatically.");
+          await FirebaseAuth.instance.signInWithCredential(credential);
+          // Navigate to OTP screen
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => OtpScreen(
+                contactInfo: selectedCountryCode + _controller.text.trim(),
+                verificationId: "", // Pass a dummy value here for auto-verification
+              ),
+            ),
+          );
+        },
+        verificationFailed: (FirebaseAuthException e) {
+          // Detailed error logging
+          debugPrint("Verification failed with message: ${e.message}");
+          debugPrint("Error code: ${e.code}");
+          debugPrint("Complete error: ${e.toString()}");
+
+          // Show error in the UI
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(e.message ?? "Verification failed."),
+              backgroundColor: Colors.red,
+            ),
+          );
+        },
+        codeSent: (String verificationId, int? resendToken) {
+          debugPrint("Code sent. Verification ID: $verificationId");
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => OtpScreen(
+                contactInfo: selectedCountryCode + _controller.text.trim(),
+                verificationId: verificationId,
+              ),
+            ),
+          );
+        },
+        codeAutoRetrievalTimeout: (String verificationId) {
+          debugPrint("Code auto-retrieval timeout. Verification ID: $verificationId");
+        },
+      );
+    } catch (e) {
+      debugPrint("An error occurred: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Error: ${e.toString()}"),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
+
+
+  // void login() {
+  //   var url = '${ApiConstants.baseUrl}${ApiConstants.userLogin}';
+  //   var body = {
+  //     'phone': _controller.text.trim(), // Trim input to remove whitespace
+  //   };
+  //
+  //   HandleRequest(context).handleRequest(
+  //     'POST',
+  //     url,
+  //     "", // No token since `authRequired` is false
+  //     false,
+  //     body: body,
+  //     callback: (responseBody, {bool isError = false}) {
+  //       if (isError) {
+  //         ScaffoldMessenger.of(context).showSnackBar(
+  //           SnackBar(
+  //             content: Text(
+  //               responseBody,
+  //               style: const TextStyle(color: Colors.white),
+  //             ),
+  //             backgroundColor: Colors.red,
+  //           ),
+  //         );
+  //       } else {
+  //         // Parse the response and handle success
+  //         final jsonResponse = jsonDecode(responseBody);
+  //         final message = jsonResponse['message'] ?? 'Login successful!';
+  //         print('Response: $jsonResponse'); // Debugging
+  //         ScaffoldMessenger.of(context).showSnackBar(
+  //           SnackBar(
+  //             content: Text(
+  //               message,
+  //               style: const TextStyle(color: Colors.white),
+  //             ),
+  //             backgroundColor: Colors.green,
+  //           ),
+  //         );
+  //
+  //         // Proceed with navigation or other actions
+  //         Navigator.push(
+  //           context,
+  //           MaterialPageRoute(
+  //             builder: (context) => OtpScreen(
+  //               contactInfo: _controller.text.trim(),
+  //             ),
+  //           ),
+  //         );
+  //       }
+  //     },
+  //   );
+  // }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -93,8 +220,8 @@ class _PhoneNumberScreenState extends State<PhoneNumberScreen> {
                   ? "we'll send you a verification link to your email"
                   : "we'll send you a verification code on the same number",
               style: const TextStyle(
-                  fontSize: 16,
-                  fontFamily: 'Inter',
+                fontSize: 16,
+                fontFamily: 'Inter',
               ),
             ),
             const SizedBox(height: 20),
@@ -173,7 +300,10 @@ class _PhoneNumberScreenState extends State<PhoneNumberScreen> {
             Padding(
               padding: const EdgeInsets.only(bottom: 16.0),
               child: ElevatedButton(
-                onPressed: _isButtonEnabled ? _navigateToOtpScreen : null,
+                // onPressed: _isButtonEnabled ? _navigateToOtpScreen : null,
+                onPressed: _isButtonEnabled
+                    ? () => login()
+                    : null,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: _isButtonEnabled ? Colors.blue : Colors.grey,
                   foregroundColor: _isButtonEnabled ? Colors.white : Colors.black,

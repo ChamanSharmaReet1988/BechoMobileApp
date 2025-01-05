@@ -51,5 +51,21 @@
     <string>We need access to your location to provide better services.</string>
     <key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
     <string>We need access to your location to show your current position.</string>
+    <key>UIBackgroundModes</key>
+    <array>
+      <string>fetch</string>
+      <string>remote-notification</string>
+    </array>
+    <key>CFBundleURLTypes</key>
+    <array>
+        <dict>
+            <key>CFBundleTypeRole</key>
+            <string>None</string>
+            <key>CFBundleURLSchemes</key>
+            <array>
+                <string>app-1-471007810196-ios-564618e1fa071fa0081a81</string>
+            </array>
+        </dict>
+    </array>
 </dict>
 </plist>

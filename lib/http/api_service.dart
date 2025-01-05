@@ -8,14 +8,13 @@ class ApiService {
 
   ApiService(this.context);
 
-  Future<void> userLogin(String email, String password,
-      ResponseCallback callback) async {
-    var url = '${ApiConstants.baseUrl}${ApiConstants.userLogin}';
-    var body = {
-      'email': email,
-      'password': password,
-    };
-    await HandleRequest(context)
-        .handleRequest('POST', url, "", false, body: body, callback: callback);
-  }
+//   Future<void> userLogin(String phoneNumber,
+//       ResponseCallback callback) async {
+//     var url = '${ApiConstants.baseUrl}${ApiConstants.userLogin}';
+//     var body = {
+//       'phone': phoneNumber,
+//     };
+//     await HandleRequest(context)
+//         .handleRequest('POST', url, "", false, body: body, callback: callback);
+//   }
 }

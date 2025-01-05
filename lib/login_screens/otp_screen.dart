@@ -1,11 +1,12 @@
-import 'package:becho_project/login_screens/enter_name.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'enter_name.dart';
 
 class OtpScreen extends StatefulWidget {
   final String contactInfo; // This will hold the phone number or email
+  final String verificationId; // The verification ID from Firebase
 
-  // Constructor to pass the dynamic contact info (phone/email)
-  const OtpScreen({Key? key, required this.contactInfo}) : super(key: key);
+  const OtpScreen({Key? key, required this.contactInfo, required this.verificationId}) : super(key: key);
 
   @override
   State<OtpScreen> createState() => _OtpScreenState();
@@ -52,22 +53,23 @@ class _OtpScreenState extends State<OtpScreen> {
   }
 
   // Function to validate the OTP
-  void _validateOTP() {
+  void _validateOTP() async {
     String enteredOtp =
     _controllers.map((controller) => controller.text).join();
 
-    // Replace this with actual OTP validation logic
-    String correctOtp = "1234"; // Example: Hardcoded correct OTP
-
-    if (enteredOtp == correctOtp) {
-      // Navigate to the EnterName screen if the OTP is correct
+    try {
+      PhoneAuthCredential credential = PhoneAuthProvider.credential(
+        verificationId: widget.verificationId,
+        smsCode: enteredOtp,
+      );
+      await FirebaseAuth.instance.signInWithCredential(credential);
       Navigator.push(
         context,
         MaterialPageRoute(
           builder: (context) => EnterName(),
         ),
       );
-    } else {
+    } catch (e) {
       // Show an error message if the OTP is incorrect
       showDialog(
         context: context,
