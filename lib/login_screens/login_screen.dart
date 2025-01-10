@@ -1,9 +1,8 @@
-import 'package:becho_project/login_screens/phone_number_screen.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:becho_project/login_screens/phone_number_screen.dart';
 
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({Key? key}) : super(key: key);
+  const LoginScreen({super.key});
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -71,7 +70,8 @@ class _LoginScreenState extends State<LoginScreen> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => PhoneNumberScreen(isEmailLogin: false),
+                              builder: (context) =>
+                                  PhoneNumberScreen(isEmailLogin: false),
                             ),
                           );
                         },
@@ -98,13 +98,13 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ),
                       const SizedBox(height: 16.0),
-
                       ElevatedButton(
                         onPressed: () {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => PhoneNumberScreen(isEmailLogin: true),
+                              builder: (context) =>
+                                  PhoneNumberScreen(isEmailLogin: true),
                             ),
                           );
                         },
@@ -155,7 +155,6 @@ class _LoginScreenState extends State<LoginScreen> {
                         GestureDetector(
                           onTap: () {
                             // Handle the click on the second line
-                            print("Navigating to the Terms, Conditions, and Privacy Policy.");
                           },
                           child: Text(
                             'OLX Terms, Conditions, and Privacy Policy',
@@ -163,7 +162,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               fontSize: 14.0,
                               color: Colors.blue,
                               decoration: TextDecoration.underline,
-                              fontFamily: 'Inter',// Underline for link effect
+                              fontFamily: 'Inter', // Underline for link effect
                             ),
                             textAlign: TextAlign.center,
                           ),

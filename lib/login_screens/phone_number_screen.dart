@@ -1,20 +1,14 @@
-import 'dart:convert';
-import 'dart:math';
-
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
-import '../Utility/constant.dart';
-import '../Utility/preference_helper.dart';
-import '../common/base_widget.dart';
-import '../http/api_constant.dart';
-import '../http/api_service.dart';
-import '../http/handle_request.dart';
 import 'otp_screen.dart';
+import '../Utility/constant.dart';
+import 'package:flutter/material.dart';
+import '../Utility/preference_helper.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class PhoneNumberScreen extends StatefulWidget {
-  final bool isEmailLogin;  // Flag to determine if the screen should work as email or phone
+  final bool
+      isEmailLogin; // Flag to determine if the screen should work as email or phone
 
-  const PhoneNumberScreen({Key? key, this.isEmailLogin = false}) : super(key: key);
+  const PhoneNumberScreen({super.key, this.isEmailLogin = false});
 
   @override
   State<PhoneNumberScreen> createState() => _PhoneNumberScreenState();
@@ -25,9 +19,7 @@ class _PhoneNumberScreenState extends State<PhoneNumberScreen> {
   final _controller = TextEditingController();
   bool _isButtonEnabled = false;
   String selectedCountryCode = '+91';
-  final PreferencesHelper _preferencesHelper = PreferencesHelper();
   String verificationId = "";
-
 
   @override
   void dispose() {
@@ -51,20 +43,22 @@ class _PhoneNumberScreenState extends State<PhoneNumberScreen> {
   void _navigateToOtpScreen() {
     String verificationDetail;
     if (widget.isEmailLogin) {
-      verificationDetail = _controller.text.trim();  // Email
+      verificationDetail = _controller.text.trim(); // Email
     } else {
-      verificationDetail = selectedCountryCode + _controller.text.trim();  // Phone number with country code
+      verificationDetail = selectedCountryCode +
+          _controller.text.trim(); // Phone number with country code
     }
 
     // Navigate to OTP screen and pass the verification details
-    if (_formKey!.currentState!.validate()) {
+    if (_formKey.currentState!.validate()) {
       // login(context);
     }
   }
 
   void login() async {
     try {
-      debugPrint("Attempting phone verification for: ${selectedCountryCode + _controller.text.trim()}");
+      debugPrint(
+          "Attempting phone verification for: ${selectedCountryCode + _controller.text.trim()}");
 
       await FirebaseAuth.instance.verifyPhoneNumber(
         phoneNumber: selectedCountryCode + _controller.text.trim(),
@@ -77,7 +71,8 @@ class _PhoneNumberScreenState extends State<PhoneNumberScreen> {
             MaterialPageRoute(
               builder: (context) => OtpScreen(
                 contactInfo: selectedCountryCode + _controller.text.trim(),
-                verificationId: "", // Pass a dummy value here for auto-verification
+                verificationId:
+                    "", // Pass a dummy value here for auto-verification
               ),
             ),
           );
@@ -109,7 +104,8 @@ class _PhoneNumberScreenState extends State<PhoneNumberScreen> {
           );
         },
         codeAutoRetrievalTimeout: (String verificationId) {
-          debugPrint("Code auto-retrieval timeout. Verification ID: $verificationId");
+          debugPrint(
+              "Code auto-retrieval timeout. Verification ID: $verificationId");
         },
       );
     } catch (e) {
@@ -122,8 +118,6 @@ class _PhoneNumberScreenState extends State<PhoneNumberScreen> {
       );
     }
   }
-
-
 
   // void login() {
   //   var url = '${ApiConstants.baseUrl}${ApiConstants.userLogin}';
@@ -177,8 +171,6 @@ class _PhoneNumberScreenState extends State<PhoneNumberScreen> {
   //   );
   // }
 
-
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -207,7 +199,9 @@ class _PhoneNumberScreenState extends State<PhoneNumberScreen> {
 
             // Change Text Based on Login Type (Phone or Email)
             Text(
-              widget.isEmailLogin ? 'Enter Your Email' : 'Enter Your Phone Number',
+              widget.isEmailLogin
+                  ? 'Enter Your Email'
+                  : 'Enter Your Phone Number',
               style: const TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
@@ -229,53 +223,11 @@ class _PhoneNumberScreenState extends State<PhoneNumberScreen> {
             // Conditional Input Field (Email or Phone)
             widget.isEmailLogin
                 ? TextFormField(
-              controller: _controller,
-              onChanged: _onInputChanged,
-              keyboardType: TextInputType.emailAddress,
-              decoration: InputDecoration(
-                labelText: 'Email',
-                labelStyle: const TextStyle(fontSize: 16),
-                enabledBorder: UnderlineInputBorder(
-                  borderSide: BorderSide(color: Colors.grey),
-                ),
-                focusedBorder: UnderlineInputBorder(
-                  borderSide: BorderSide(color: Colors.blue),
-                ),
-              ),
-              validator: (value) {
-                if (value == null || value.isEmpty || !RegExp(r"^[^@]+@[^@]+\.[^@]+").hasMatch(value)) {
-                  return 'Please enter a valid email';
-                }
-                return null;
-              },
-            )
-                : Row(
-              children: [
-                // Country Code Picker (Only for Phone Number)
-                DropdownButton<String>(
-                  value: selectedCountryCode,
-                  onChanged: (String? newValue) {
-                    setState(() {
-                      selectedCountryCode = newValue!;
-                    });
-                  },
-                  items: Constant.countryCodes
-                      .map<DropdownMenuItem<String>>((String value) {
-                    return DropdownMenuItem<String>(
-                      value: value,
-                      child: Text(value),
-                    );
-                  }).toList(),
-                ),
-                const SizedBox(width: 10),
-
-                Expanded(
-                  child: TextFormField(
                     controller: _controller,
                     onChanged: _onInputChanged,
-                    keyboardType: TextInputType.phone,
+                    keyboardType: TextInputType.emailAddress,
                     decoration: InputDecoration(
-                      labelText: 'Phone Number',
+                      labelText: 'Email',
                       labelStyle: const TextStyle(fontSize: 16),
                       enabledBorder: UnderlineInputBorder(
                         borderSide: BorderSide(color: Colors.grey),
@@ -285,15 +237,59 @@ class _PhoneNumberScreenState extends State<PhoneNumberScreen> {
                       ),
                     ),
                     validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter your phone number';
+                      if (value == null ||
+                          value.isEmpty ||
+                          !RegExp(r"^[^@]+@[^@]+\.[^@]+").hasMatch(value)) {
+                        return 'Please enter a valid email';
                       }
                       return null;
                     },
+                  )
+                : Row(
+                    children: [
+                      // Country Code Picker (Only for Phone Number)
+                      DropdownButton<String>(
+                        value: selectedCountryCode,
+                        onChanged: (String? newValue) {
+                          setState(() {
+                            selectedCountryCode = newValue!;
+                          });
+                        },
+                        items: Constant.countryCodes
+                            .map<DropdownMenuItem<String>>((String value) {
+                          return DropdownMenuItem<String>(
+                            value: value,
+                            child: Text(value),
+                          );
+                        }).toList(),
+                      ),
+                      const SizedBox(width: 10),
+
+                      Expanded(
+                        child: TextFormField(
+                          controller: _controller,
+                          onChanged: _onInputChanged,
+                          keyboardType: TextInputType.phone,
+                          decoration: InputDecoration(
+                            labelText: 'Phone Number',
+                            labelStyle: const TextStyle(fontSize: 16),
+                            enabledBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(color: Colors.grey),
+                            ),
+                            focusedBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(color: Colors.blue),
+                            ),
+                          ),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Please enter your phone number';
+                            }
+                            return null;
+                          },
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-              ],
-            ),
 
             const SizedBox(height: 30),
             Spacer(),
@@ -301,12 +297,11 @@ class _PhoneNumberScreenState extends State<PhoneNumberScreen> {
               padding: const EdgeInsets.only(bottom: 16.0),
               child: ElevatedButton(
                 // onPressed: _isButtonEnabled ? _navigateToOtpScreen : null,
-                onPressed: _isButtonEnabled
-                    ? () => login()
-                    : null,
+                onPressed: _isButtonEnabled ? () => login() : null,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: _isButtonEnabled ? Colors.blue : Colors.grey,
-                  foregroundColor: _isButtonEnabled ? Colors.white : Colors.black,
+                  foregroundColor:
+                      _isButtonEnabled ? Colors.white : Colors.black,
                   padding: const EdgeInsets.symmetric(vertical: 16.0),
                   textStyle: TextStyle(
                     fontSize: 16.0,
